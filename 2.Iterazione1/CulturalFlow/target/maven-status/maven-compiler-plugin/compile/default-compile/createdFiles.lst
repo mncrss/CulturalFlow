@@ -1,0 +1,9 @@
+com\culturalflow\model\Cliente.class
+com\culturalflow\controller\ClienteGiaRegistratoException.class
+com\culturalflow\controller\CulturalFlow.class
+com\culturalflow\model\Evento.class
+com\culturalflow\model\Cliente$Categoria.class
+com\culturalflow\view\MainFrame$1.class
+com\culturalflow\view\MainFrame.class
+com\culturalflow\controller\EventoBuilder.class
+com\culturalflow\controller\EventoConcreteBuilder.class
