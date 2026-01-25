@@ -20,11 +20,17 @@ import java.util.ArrayList;
 public class CulturalFlow {
     private static CulturalFlow culturalFlow;
     
-    private final Map<String, Cliente> elencoClienti;   
+    private final Map<String, Cliente> elencoClienti;
+    private final Map<Integer, Evento> elencoEventi;
+    
     private Cliente clienteCorrente;
+    private Evento eventoCorrente;
+    
+    private final EventoBuilder eventoBuilder = new EventoConcreteBuilder();
     
     private CulturalFlow(){
         this.elencoClienti = new HashMap<>();
+        this.elencoEventi = new HashMap<>();
     }
     
     public static CulturalFlow getInstance() {
@@ -67,4 +73,60 @@ public class CulturalFlow {
         elencoClienti.put(email, clienteCorrente);
     }
     
+    public List<Evento> cercaEvento(String nome, String tipologia, String luogo){
+        List<Evento> elencoEventiDisponibili = new ArrayList<>();
+        
+        for(Evento e : elencoEventi.values()){
+            if((nome == null || e.getNome().toLowerCase().contains(nome.toLowerCase())) &&
+                    (tipologia == null || e.getTipologia().toLowerCase().equals(tipologia.toLowerCase())) &&
+                    (luogo == null || e.getLuogo().toLowerCase().equals(luogo.toLowerCase()))){
+                elencoEventiDisponibili.add(e);
+            }
+        }
+        return elencoEventiDisponibili;
+    }
+    
+    public void inserisciEvento(String nome, String luogo, Date data, float prezzobase) {
+        eventoBuilder.createNuovoEvento(nome, luogo, data, prezzobase);
+        this.eventoCorrente = eventoBuilder.getEvento();
+    }
+    
+    public void selezionaTipologia(String tipologia){
+        eventoBuilder.buildTipologia(tipologia);
+    }
+    
+    public void inserisciServizioDettagli(boolean servizio, String dettagli){
+        eventoBuilder.buildServizio(servizio);
+        eventoBuilder.buildDettagli(dettagli);
+    }
+    
+    public void confermaEvento() {
+        int id = elencoEventi.size() + 1; 
+        eventoBuilder.buildIdEvento(id);
+        Evento e = eventoBuilder.getEvento();
+        elencoEventi.put(id, e);
+    }
+   
+    public void reset() {
+        this.elencoClienti.clear();
+        this.elencoEventi.clear();
+        this.clienteCorrente = null;
+        this.eventoCorrente = null;
+    }
+    
+    public Cliente getClienteCorrente() {
+        return clienteCorrente;
+    }
+    
+    public Map<String, Cliente> getClienti(){
+        return elencoClienti;
+    }
+    
+    public Evento getEventoCorrente(){
+        return eventoCorrente;
+    }
+    
+    public Map<Integer, Evento> getEventi(){
+        return elencoEventi;
+    }
 }
