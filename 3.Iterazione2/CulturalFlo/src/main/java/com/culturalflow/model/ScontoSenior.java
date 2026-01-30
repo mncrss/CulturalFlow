@@ -8,9 +8,9 @@ package com.culturalflow.model;
  *
  * @author monic
  */
-public class Sconto25 implements ScontoStrategy{
+public class ScontoSenior implements ScontoStrategy {
     @Override
     public float applicaSconto(float pb, float ps) {
-        return (pb + ps) * 0.75f;
+        return pb; 
     }
 }

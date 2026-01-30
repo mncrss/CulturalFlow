@@ -7,11 +7,11 @@ package com.culturalflow.controller;
 import com.culturalflow.model.Cliente;
 import com.culturalflow.model.Evento;
 import com.culturalflow.model.Biglietto;
-import com.culturalflow.model.EventoPopUp;
 import com.culturalflow.model.EventoStandard;
 import com.culturalflow.model.Sconto25;
 import com.culturalflow.model.ScontoSenior;
 import com.culturalflow.model.ScontoStandard;
+import com.culturalflow.model.ScontoStrategy;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -118,7 +118,18 @@ public class CulturalFlow {
         elencoEventi.put(id, e);
     }
     
-   
+    public void inviaInvitiPrioritari() {
+        if (eventoCorrente instanceof EventoPopUp) {
+            EventoPopUp epu = (EventoPopUp) eventoCorrente;
+            String codice = epu.getCodiceAccesso();
+
+            for (Cliente c : elencoClienti.values()) {
+                if (c.haInteresseElevato(epu.getTarget())) { 
+                System.out.println("Invio codice prioritario " + codice + " a " + c.getEmail());
+                }
+            }
+        }
+    }
     
     public Evento selezionaEvento(int idEvento) {
         this.eventoCorrente = elencoEventi.get(idEvento);
@@ -126,6 +137,7 @@ public class CulturalFlow {
     }
     
     public void acquistaBiglietto(boolean servizio, String dettagli, int quantita, String codice) throws Exception {
+        ScontoStrategy strategy;
         Cliente.Categoria cat = clienteCorrente.getCategoria();
         String tipologia = eventoCorrente.getTipologia();
         
@@ -149,8 +161,49 @@ public class CulturalFlow {
         }
 
         this.biglietti = new ArrayList<>();
+    
+        if (cat == Cliente.Categoria.Studente || cat == Cliente.Categoria.AccessoSpeciale) {
+            strategy = new Sconto25();
+        } 
+        else if (cat == Cliente.Categoria.Senior && tipologia.toLowerCase().equals("mostra")) {
+            strategy = new ScontoSenior(); 
+        } 
+        else {
+            strategy = new ScontoStandard();
+        }
+
+        if (tipologia.equalsIgnoreCase("concerto") && dettagli != null && dettagli.equalsIgnoreCase("tribuna")) {
+            pb *= 1.20f;
+        }
+        
+        for (int i = 0; i < quantita; i++) {
+            Biglietto b = new Biglietto(eventoCorrente, servizio, dettagli, strategy);
+            b.calcolaPrezzoScontato(pb, ps);
+            this.biglietti.add(b);
+        }
 
         eventoCorrente.aggiornaDisponibilita(quantita);
+    }
+    
+    public void confermaAcquisto() throws Exception {
+        if (this.biglietti == null || this.biglietti.isEmpty()) {
+            throw new Exception("Nessun biglietto in attesa di conferma.");
+        }   
+
+        for (Biglietto b : this.biglietti) {
+            this.clienteCorrente.addBiglietto(b);
+        }
+
+        this.biglietti.clear();
+    }
+    
+    public void aggiungiInWishlist(int idEvento) {
+        Evento e = elencoEventi.get(idEvento);
+    
+        if (e != null && clienteCorrente != null) {
+            clienteCorrente.addEventoWishlist(e);
+            System.out.println("Evento '" + e.getNome() + "' aggiunto ai preferiti.");
+        }
     }
    
     public void reset() {
