@@ -6,7 +6,9 @@ package com.culturalflow.controller;
 
 import com.culturalflow.model.Cliente;
 import com.culturalflow.model.Evento;
+import com.culturalflow.model.Organizzatore;
 import com.culturalflow.model.Biglietto;
+import com.culturalflow.model.EventoPopUp;
 import com.culturalflow.model.EventoStandard;
 import com.culturalflow.model.Sconto25;
 import com.culturalflow.model.ScontoSenior;
@@ -94,6 +96,29 @@ public class CulturalFlow {
         return elencoEventiDisponibili;
     }
     
+    private String creaCodice() {
+        return "POP-" + (int)(Math.random() * 10000);
+    }
+    
+    public void creaPopUp(Organizzatore org, String nome, String luogo, Date data, float prezzobase, int disponibilita, String target, Date scadenzaPriorita) throws Exception {
+        if (!org.isSponsor()) {
+        throw new Exception("Solo gli Sponsor possono creare eventi Pop-Up.");
+        }
+
+        String codiceAccesso = creaCodice(); 
+
+        this.eventoBuilder = new EventoPopUpConcreteBuilder();
+        eventoBuilder.createNuovoEvento(nome, luogo, data, prezzobase, disponibilita);
+
+        eventoBuilder.buildTarget(target);
+        eventoBuilder.buildScadenza(scadenzaPriorita);
+        eventoBuilder.buildCodiceAccesso(codiceAccesso);
+
+        int id = elencoEventi.size() + 1;
+        eventoBuilder.buildIdEvento(id);
+        this.eventoCorrente = eventoBuilder.getEvento();
+        elencoEventi.put(id, this.eventoCorrente);
+    }
     
     public void inserisciEventoStandard(String nome, String luogo, Date data, float prezzobase, int disponibilita) {
         this.eventoBuilder = new EventoStandardConcreteBuilder();
@@ -204,6 +229,22 @@ public class CulturalFlow {
             clienteCorrente.addEventoWishlist(e);
             System.out.println("Evento '" + e.getNome() + "' aggiunto ai preferiti.");
         }
+    }
+    
+    public void rimuoviDaWishlist(int idEvento) {
+        Evento e = elencoEventi.get(idEvento);
+    
+        if (e != null && clienteCorrente != null) {
+            clienteCorrente.removeEventoWishlist(e);
+            System.out.println("Evento rimosso dalla wishlist.");
+        }
+    }
+    
+    public List<Evento> mostraWishlist() {
+        if (clienteCorrente != null) {
+            return clienteCorrente.getWishlist();
+        }
+        return new ArrayList<>(); 
     }
    
     public void reset() {
