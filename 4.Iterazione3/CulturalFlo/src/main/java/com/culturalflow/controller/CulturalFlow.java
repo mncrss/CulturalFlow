@@ -11,6 +11,7 @@ import com.culturalflow.model.Biglietto;
 import com.culturalflow.model.Contest;
 import com.culturalflow.model.EventoPopUp;
 import com.culturalflow.model.EventoStandard;
+import com.culturalflow.model.Rimborso;
 import com.culturalflow.model.Sconto25;
 import com.culturalflow.model.ScontoSenior;
 import com.culturalflow.model.ScontoStandard;
@@ -36,6 +37,7 @@ public class CulturalFlow {
     private Cliente clienteCorrente;
     private Evento eventoCorrente;
     private Contest contestCorrente;
+    private Rimborso rimborsoCorrente;
     
     private Organizzatore organizzatoreLoggato;
     
@@ -281,8 +283,89 @@ public class CulturalFlow {
         this.contestCorrente = null;
     }
     
+    public void richiestaRimborso(int idBiglietto) throws Exception{
+        List<Biglietto> elencoBiglietti = clienteCorrente.getBiglietti();
+        
+        Biglietto b = null;
+        for(Biglietto bt : elencoBiglietti){
+            if(bt.getIdBiglietto() == idBiglietto){
+                b = bt;
+                break;
+            }
+        }
+        
+        if(b == null) throw new Exception("Biglietto non trovato.");
+        
+        Evento e = b.getEvento();
+        if(b.isRimborsabile()){
+            float prezzo = b.getPrezzoFinale();
+            this.rimborsoCorrente = new Rimborso(prezzo);
+            e.aggiornaDisponibilita(-1);
+        }else{
+            throw new Exception("Il biglietto non è rimborsabile.");
+        }
+    }
+    
+    public void confermaRimborso() throws Exception{
+        if(this.rimborsoCorrente == null){
+            throw new Exception("Errore: nessun rimborso in attesa di conferma");
+        }
+        
+        if(this.clienteCorrente != null){
+            this.clienteCorrente.addRimborso(this.rimborsoCorrente);
+        }
+        
+        this.rimborsoCorrente = null;
+    }
+    
     public List<Contest> visualizzaContest() {
         return new ArrayList<>(this.elencoContest.values());
+    }
+    
+    public void selezionaContest(int idContest) throws Exception {
+        Contest c = elencoContest.get(idContest);
+    
+        if (c == null) {
+            throw new Exception("Contest non trovato.");
+        }
+        this.contestCorrente = c;
+    }
+    
+    public void iscrizioneContest() throws Exception {
+        String email = this.clienteCorrente.getEmail();
+    
+        int p = this.clienteCorrente.contaPartecipazioniAperte();
+    
+        if (p < 2) {
+            if (!"Aperto".equalsIgnoreCase(this.contestCorrente.getStato())) {
+                throw new Exception("Impossibile iscriversi: il contest selezionato è chiuso.");
+            }
+            Evento evContest = this.contestCorrente.getEventoRiferimento();
+            boolean haBiglietto = false;
+            for (Biglietto b : this.clienteCorrente.getBiglietti()) {
+                if (b.getEvento().equals(evContest)) {
+                    haBiglietto = true;
+                    break;
+                }
+            }
+            if (!haBiglietto) {
+                throw new Exception("Requisiti non soddisfatti: non hai acquistato un biglietto per l'evento: " + evContest.getNome());
+            }
+            
+            this.clienteCorrente.addPartecipazione(this.contestCorrente);
+            this.contestCorrente.aggiungiPartecipante(email, this.clienteCorrente);
+        } else {
+            throw new Exception("Limite raggiunto: hai già 2 iscrizioni attive a contest aperti.");
+        }
+    }
+    
+    public void eseguiEstrazioneContest(int idContest) throws Exception {
+        Contest c = elencoContest.get(idContest);
+        if (c == null) throw new Exception("Contest non trovato.");
+        if (new Date().before(c.getDataEstrazione())) {
+            throw new Exception("Errore: la data di estrazione non è ancora stata raggiunta.");
+        }
+        c.estraiVincitore();
     }
    
     public void reset() {
@@ -317,5 +400,8 @@ public class CulturalFlow {
     public Contest getContestCorrente() {
         return this.contestCorrente;
     }
-
+    
+    public Rimborso getRimborsoCorrente() {
+        return this.rimborsoCorrente;
+    }
 }
