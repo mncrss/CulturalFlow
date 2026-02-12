@@ -1,0 +1,10 @@
+com\culturalflow\model\EventoStandardTest.class
+com\culturalflow\model\ContestTest.class
+com\culturalflow\model\Sconto25Test.class
+com\culturalflow\model\EventoTest.class
+com\culturalflow\model\ClienteTest.class
+com\culturalflow\model\EventoPopUpTest.class
+com\culturalflow\model\ScontoStandardTest.class
+com\culturalflow\model\BigliettoTest.class
+com\culturalflow\model\ScontoSeniorTest.class
+com\culturalflow\controller\CulturalFlowTest.class
