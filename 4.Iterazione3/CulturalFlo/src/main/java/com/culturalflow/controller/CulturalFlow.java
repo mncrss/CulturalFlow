@@ -8,6 +8,7 @@ import com.culturalflow.model.Cliente;
 import com.culturalflow.model.Evento;
 import com.culturalflow.model.Organizzatore;
 import com.culturalflow.model.Biglietto;
+import com.culturalflow.model.Consulenza;
 import com.culturalflow.model.Contest;
 import com.culturalflow.model.EventoPopUp;
 import com.culturalflow.model.EventoStandard;
@@ -33,11 +34,13 @@ public class CulturalFlow {
     private final Map<String, Cliente> elencoClienti;
     private final Map<Integer, Evento> elencoEventi;
     private final Map<Integer, Contest> elencoContest;
+    private final Map<Integer, Consulenza> elencoConsulenze;
     
     private Cliente clienteCorrente;
     private Evento eventoCorrente;
     private Contest contestCorrente;
     private Rimborso rimborsoCorrente;
+    private Consulenza consulenzaCorrente;
     
     private Organizzatore organizzatoreLoggato;
     
@@ -49,6 +52,7 @@ public class CulturalFlow {
         this.elencoClienti = new HashMap<>();
         this.elencoEventi = new HashMap<>();
         this.elencoContest = new HashMap<>();
+        this.elencoConsulenze = new HashMap<>();
     }
     
     public static CulturalFlow getInstance() {
@@ -317,6 +321,52 @@ public class CulturalFlow {
         
         this.rimborsoCorrente = null;
     }
+            
+    public void richiediConsulenza(String oggetto, String descrizione) {
+        String email = this.clienteCorrente.getEmail();
+        List<Consulenza> listaClient = this.clienteCorrente.getConsulenze();
+        int idConsulenza = elencoConsulenze.size() + 1;
+        Consulenza c = new Consulenza(idConsulenza, oggetto, descrizione, email);
+        this.elencoConsulenze.put(idConsulenza, c);
+    
+        this.clienteCorrente.addConsulenza(c);
+    }
+    
+    public List<Consulenza> visualizzaRichieste() {
+        return new ArrayList<>(this.elencoConsulenze.values());
+    }
+    
+    public void selezionaConsulenza(int idConsulenza) throws Exception {
+        Consulenza c = elencoConsulenze.get(idConsulenza);
+    
+        if (c == null) {
+            throw new Exception("Consulenza non trovata.");
+        }
+    
+        this.consulenzaCorrente = c; 
+    }
+    
+    public Cliente visualizzaProfiloCliente() throws Exception {
+        if (this.consulenzaCorrente == null) {
+            throw new Exception("Errore: nessuna consulenza selezionata.");
+        }
+
+        String email = this.consulenzaCorrente.getEmailCliente();
+        Cliente c = elencoClienti.get(email);
+
+        if (c == null) {
+            throw new Exception("Errore: profilo cliente non trovato.");
+        }
+        return c;
+    }
+    
+    public void inviaSoluzione(String soluzione) throws Exception {
+        if (this.consulenzaCorrente == null) {
+            throw new Exception("Errore: nessuna consulenza selezionata su cui lavorare.");
+        }
+        this.consulenzaCorrente.setSoluzione(soluzione);
+        this.consulenzaCorrente = null;
+    }
     
     public List<Contest> visualizzaContest() {
         return new ArrayList<>(this.elencoContest.values());
@@ -371,10 +421,12 @@ public class CulturalFlow {
     public void reset() {
         this.elencoClienti.clear();
         this.elencoEventi.clear();
+        this.elencoConsulenze.clear();
         this.elencoContest.clear();
         this.clienteCorrente = null;
         this.eventoCorrente = null;
         this.contestCorrente = null;
+        this.consulenzaCorrente = null;
     }
     
     public Cliente getClienteCorrente() {
@@ -395,6 +447,14 @@ public class CulturalFlow {
     
     public List<Biglietto> getBiglietti(){
         return biglietti;
+    }
+    
+    public Consulenza getConsulenzaCorrente(){
+        return consulenzaCorrente;
+    }
+    
+    public Map<Integer, Consulenza> getElencoConsulenze(){
+        return elencoConsulenze;
     }
     
     public Contest getContestCorrente() {
