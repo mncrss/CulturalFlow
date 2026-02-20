@@ -1,0 +1,2 @@
+1;Aiuto Acquisto Biglietti;...;Aperta;monica@email.com;null
+2;consulenza;descr consulenza;Chiusa;cliente@email.com;soluzione

@@ -1,0 +1,2 @@
+Gaetano;Pennisi;gaetano@email.com;password;tanoEventi;false
+Pippo;Pluto;pippo@email.com;password;pippooplutoo;true

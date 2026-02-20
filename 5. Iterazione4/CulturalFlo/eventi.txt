@@ -1,0 +1,6 @@
+STANDARD;1;gaetano@email.com;Evento1;Catania;15/05/2026;20.0;99;Mostra;true;3.0;null
+STANDARD;2;pippo@email.com;Evento3;Catania;24/06/2026;40.0;200;Concerto;false;0.0;null
+STANDARD;3;gaetano@email.com;Evento2;Acireale;16/03/2026;10.0;100;Concerto;false;0.0;null
+STANDARD;4;pippo@email.com;Evento4;Messin;28/09/2026;50.0;100;Concerto;false;0.0;null
+POPUP;5;pippo@email.com;Eveno5;Catania;28/02/2026;10.0;200;Concerto;Concerto;POP-6206;21/02/2026
+POPUP;6;pippo@email.com;Evento6;Acireale;16/04/2026;12.0;50;Mostra;Mostra;POP-3717;10/04/2026

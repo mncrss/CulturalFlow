@@ -1,0 +1,2 @@
+0;Contest;desc;pr;Aperto;21/02/2026;21/02/2026;08/09/2026;3;null;null
+1;Contest2;d;p;Aperto;21/02/2026;16/03/2026;20/03/2026;6;null;null
