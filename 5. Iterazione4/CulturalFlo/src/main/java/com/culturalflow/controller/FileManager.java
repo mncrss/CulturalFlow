@@ -157,7 +157,7 @@ public class FileManager {
         try (PrintWriter out = new PrintWriter(new FileWriter("inviti.txt"))) {
             for (Cliente c : sistema.getClienti().values()) {
                 for (String[] inv : c.getInviti()) { 
-                    out.println(c.getEmail() + ";" + inv[0] + ";" + inv[1]);
+                    out.println(c.getEmail() + ";" + inv[0] + ";" + inv[1] + ";" + inv[2]);
                 }
             }
         } catch (IOException e) { e.printStackTrace(); }
@@ -252,40 +252,60 @@ public class FileManager {
     }
     
     private static void caricaEventi(CulturalFlow sistema) {
-        File f = new File(FILE_EVENTI);
-        if (!f.exists()) return;
-        try (Scanner s = new Scanner(f)) {
-            while (s.hasNextLine()) {
-                String line = s.nextLine();
-                if (line.trim().isEmpty()) continue;
-                String[] d = line.split(";");
+    File f = new File(FILE_EVENTI);
+    if (!f.exists()) return;
+    try (Scanner s = new Scanner(f)) {
+        while (s.hasNextLine()) {
+            String line = s.nextLine();
+            if (line.trim().isEmpty()) continue;
+            String[] d = line.split(";");
 
-                String tipo = d[0];
-                int id = Integer.parseInt(d[1]);
-                String emailOrg = d[2]; 
-                Organizzatore org = sistema.getOrganizzatori().get(emailOrg);
+            String tipo = d[0];
+            int id = Integer.parseInt(d[1]);
+            String emailOrg = d[2]; 
+            Organizzatore org = sistema.getOrganizzatori().get(emailOrg);
 
-                if (tipo.equals("STANDARD")) {
-                    sistema.inserisciEventoStandard(org, d[3], d[4], sdf.parse(d[5]), Float.parseFloat(d[6]), Integer.parseInt(d[7]));
-                    sistema.getEventoCorrente().setOrganizzatore(org);
-                    
-                    if (sistema.getEventoCorrente() != null) {
-                        sistema.getEventoCorrente().setOrganizzatore(org);
-                        sistema.getEventoCorrente().setIdEvento(id);
-                    }
-                    sistema.selezionaTipologia(d[8]);
-                    sistema.inserisciServizioDettagli(Boolean.parseBoolean(d[9]), Float.parseFloat(d[10]), d[11]);
-                    sistema.getEventoCorrente().setIdEvento(Integer.parseInt(d[1]));
-                } else {
-                    sistema.creaPopUp(org, d[3], d[4], sdf.parse(d[5]), Float.parseFloat(d[6]), Integer.parseInt(d[7]), d[9], d[11].equals("null") ? null : sdf.parse(d[11]));
-                    sistema.getEventoCorrente().setIdEvento(Integer.parseInt(d[1]));
-                    ((EventoPopUp)sistema.getEventoCorrente()).setCodiceAccesso(d[10]);
-                    sistema.selezionaTipologia(d[8]);
+            Evento ev;
+            if (tipo.equals("STANDARD")) {
+                EventoStandard es = new EventoStandard();
+                es.setIdEvento(id);
+                es.setNome(d[3]);
+                es.setLuogo(d[4]);
+                es.setData(sdf.parse(d[5]));
+                es.setPrezzoBase(Float.parseFloat(d[6]));
+                es.setDisponibilita(Integer.parseInt(d[7]));
+                es.setTipologia(d[8]);
+                
+                if (d.length > 11) {
+                    es.setServizio(Boolean.parseBoolean(d[9]));
+                    es.setPrezzoServizio(Float.parseFloat(d[10]));
+                    es.setDettagli(d[11]);
                 }
-                sistema.confermaEvento();
+                ev = es;
+            } else {
+                EventoPopUp ep = new EventoPopUp();
+                ep.setIdEvento(id);
+                ep.setNome(d[3]);
+                ep.setLuogo(d[4]);
+                ep.setData(sdf.parse(d[5]));
+                ep.setPrezzoBase(Float.parseFloat(d[6]));
+                ep.setDisponibilita(Integer.parseInt(d[7]));
+                ep.setTarget(d[9]); 
+                ep.setCodiceAccesso(d[10]);
+                ep.setScadenzaPriorita(d[11].equals("null") ? null : sdf.parse(d[11]));
+                ev = ep;
             }
-        } catch (Exception e) { e.printStackTrace(); }
-    }
+
+            if (ev != null) {
+                ev.setOrganizzatore(org);
+                sistema.getEventi().put(id, ev);
+                if (org != null) {
+                    org.addEvento(ev);
+                }
+            }
+        }
+    } catch (Exception e) { e.printStackTrace(); }
+}
     
     private static void caricaWishlist(CulturalFlow sistema) {
         File f = new File(FILE_WISHLIST);
@@ -306,20 +326,31 @@ public class FileManager {
 
         try (Scanner s = new Scanner(f)) {
             while (s.hasNextLine()) {
-                String[] d = s.nextLine().split(";");
+                String line = s.nextLine();
+                if (line.trim().isEmpty()) continue;
 
-                Cliente cli = sistema.getClienti().get(d[1]);
-                Evento ev = sistema.getEventi().get(Integer.parseInt(d[2]));
+                String[] d = line.split(";");
 
-                if (cli != null && ev != null) {
-                    Biglietto b = new Biglietto(ev, Boolean.parseBoolean(d[5]), d[6], null);
-                    b.setIdBiglietto(Integer.parseInt(d[0])); 
-                    b.setDataAcquisto(sdf.parse(d[3]));
-                    b.setPrezzoFinale(Float.parseFloat(d[4]));
-                    cli.getBiglietti().add(b);
+                try {
+                    int idEvento = Integer.parseInt(d[1]);
+                    Evento ev = sistema.getEventi().get(idEvento);
+
+                    if (ev != null) {
+                        boolean servizio = (d.length > 4) ? Boolean.parseBoolean(d[4]) : false;
+                        String dettagli = (d.length > 5) ? d[5] : "";
+
+                        ScontoStrategy strategy = null; 
+
+                        Biglietto b = new Biglietto(ev, servizio, dettagli, strategy);
+                        sistema.getBiglietti().add(b); 
+                    }
+                } catch (Exception e) {
+                    System.err.println("Errore nella riga biglietto: " + line);
                 }
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            System.err.println("Errore caricamento biglietti: " + e.getMessage());
+        }
     }
     
     private static void caricaContest(CulturalFlow sistema) {
@@ -351,15 +382,24 @@ public class FileManager {
 
         try (Scanner s = new Scanner(f)) {
             while (s.hasNextLine()) {
-                String[] d = s.nextLine().split(";");
-                Contest contest = sistema.getElencoContest().get(Integer.parseInt(d[0]));
-                Cliente cliente = sistema.getClienti().get(d[1]);
+                String line = s.nextLine();
+                if (line.trim().isEmpty()) continue;
+                String[] d = line.split(";");
+
+                int idContest = Integer.parseInt(d[0]);
+                String emailCliente = d[1];
+
+                Contest contest = sistema.getElencoContest().get(idContest);
+                Cliente cliente = sistema.getClienti().get(emailCliente);
 
                 if (contest != null && cliente != null) {
                     contest.aggiungiPartecipante(cliente.getEmail(), cliente);
+                    cliente.addPartecipazione(contest); 
                 }
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) { 
+            System.err.println("Errore caricamento partecipanti: " + e.getMessage()); 
+        }
     }
     
     private static void caricaConsulenze(CulturalFlow sistema) {
@@ -407,7 +447,13 @@ public class FileManager {
                 int idB = Integer.parseInt(d[1]);
                 float importo = Float.parseFloat(d[2]);
 
-                Biglietto b = sistema.getBiglietti().get(idB);
+                Biglietto b = null;
+                for(Biglietto bt : sistema.getBiglietti()) {
+                    if(bt.getIdBiglietto() == idB) {
+                        b = bt;
+                        break;
+                    }
+                }
                 Rimborso r = new Rimborso(importo, b);
 
                 r.setDataRichiesta(sdf.parse(d[3]));

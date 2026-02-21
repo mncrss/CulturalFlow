@@ -211,22 +211,6 @@ public class MainView extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Nessun evento trovato per: " + filtro);
         }
     }
-        
-   /* private void aggiornaTabellaOrganizzatore() {
-        DefaultTableModel model = (DefaultTableModel) tblEventiOrganizzatore.getModel();
-        model.setRowCount(0);
-
-        for (com.culturalflow.model.Evento e : sistema.getEventi().values()) {
-            Object[] row = {
-                    e.getIdEvento(),
-                    e.getNome(),
-                    new java.text.SimpleDateFormat("dd/MM/yyyy").format(e.getData()),
-                    (e instanceof com.culturalflow.model.EventoPopUp) ? "Pop-Up" : "Standard",
-                    "N/A"
-                };
-            model.addRow(row);
-        }
-    }*/
     
     private void aggiornaTabellaOrganizzatore() {
         DefaultTableModel model = (DefaultTableModel) tblEventiOrganizzatore.getModel();
@@ -280,7 +264,7 @@ public class MainView extends javax.swing.JFrame {
                 nomeEvento,
                 String.format("%.2f€", b.getPrezzoFinale()),
                 b.getDataAcquisto(),
-                statoBiglietto 
+                statoBiglietto
             };
             model.addRow(riga);
         }
@@ -367,28 +351,6 @@ public class MainView extends javax.swing.JFrame {
         }
     }
     
-    /*private void aggiornaTabellaContestOrganizzatore() {
-        DefaultTableModel model = (DefaultTableModel) tblContestOrganizzatore.getModel();
-        model.setRowCount(0);
-
-        com.culturalflow.model.Organizzatore org = sistema.getOrganizzatoreLoggato();
-        if (org == null) return;
-
-        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
-
-        for (com.culturalflow.model.Contest c : org.getContestIndetti().values()) {
-            String nomeEvento = (c.getEventoRiferimento() != null) ? c.getEventoRiferimento().getNome() : "N/D";
-
-            model.addRow(new Object[]{
-                c.getIdContest(),
-                c.getNome(),
-                nomeEvento,
-                c.getPremio(),
-                c.getStato(),
-                sdf.format(c.getDataEstrazione())
-            });
-        }
-    }*/
     private void aggiornaTabellaContestOrganizzatore() {
         DefaultTableModel model = (DefaultTableModel) tblContestOrganizzatore.getModel();
         model.setRowCount(0);
@@ -1992,8 +1954,8 @@ public class MainView extends javax.swing.JFrame {
 
             caricaDatiEventi(null); 
             caricaMieiBiglietti();
+            aggiornaTabellaOrganizzatore();
             spnQuantita.setValue(1);
-
         } catch (Exception ex) {
             javax.swing.JOptionPane.showMessageDialog(this, "Errore acquisto: " + ex.getMessage());
         }

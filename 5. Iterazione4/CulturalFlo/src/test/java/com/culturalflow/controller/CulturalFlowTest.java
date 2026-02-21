@@ -99,10 +99,9 @@ public class CulturalFlowTest {
     }
     
     @Test
-    public void testGestioneCreazionePopUp() throws Exception{
+    public void testCreaPopUp() throws Exception{
         Calendar cal = Calendar.getInstance();
         Date oggi = cal.getTime();
-                
         cal.add(Calendar.DAY_OF_MONTH, 10);
         Date dataEvento = cal.getTime();
         
@@ -111,20 +110,19 @@ public class CulturalFlowTest {
         Date scadenzaPriorita = cal.getTime();
         
         Organizzatore orgSemplice = new Organizzatore("Paperino", "Pietro", "admin@sponsor.it", "password", "Organizzazione", false);
-    
         Exception exception = assertThrows(Exception.class, () -> {
             culturalFlow.creaPopUp(orgSemplice, "Evento", "Catania", dataEvento, 10.0f, 100, "Mostra", scadenzaPriorita);
         });
         assertEquals("Solo gli Sponsor possono creare eventi Pop-Up.", exception.getMessage());
 
         Organizzatore orgSponsor = new Organizzatore("Pippo", "Pluto", "admin@sponsor.it", "password", "PippoPluto", true);
-    
         culturalFlow.creaPopUp(orgSponsor, "Evento 2", "Catania", dataEvento, 15.0f, 100, "Mostra", scadenzaPriorita);
     
         Evento ev = culturalFlow.getEventoCorrente();
         assertNotNull(ev);
         assertTrue(ev instanceof EventoPopUp);
         assertEquals("Mostra", ev.getTipologia());
+        culturalFlow.confermaEvento();
 
         assertFalse(culturalFlow.getEventi().isEmpty());
         assertEquals("Evento 2", culturalFlow.getEventi().get(1).getNome());
@@ -138,25 +136,28 @@ public class CulturalFlowTest {
         
         culturalFlow.inserisciDati("Monica", "Russo", "monica@email.it", "password123", dataNascita, "Standard");
         culturalFlow.confermaRegistrazione();
+        Organizzatore org = new Organizzatore("Pippo", "Pluto", "pippo@sponsor.it", "password", "PippoPluto", true);
         
         for(int i=0; i<3; i++) {
-            culturalFlow.inserisciEventoStandard("Mostra "+i, "Catania", new Date(), 10.0f, 100);
+            culturalFlow.inserisciEventoStandard(org, "Mostra "+i, "Catania", new Date(), 10.0f, 100);
             culturalFlow.selezionaTipologia("Mostra");
             culturalFlow.confermaEvento();
-            culturalFlow.aggiungiInWishlist(culturalFlow.getEventoCorrente().getIdEvento());
+            
+            int idEvento = culturalFlow.getEventi().size(); 
+            culturalFlow.aggiungiInWishlist(idEvento);
         }
 
         culturalFlow.inserisciDati("Gaetano", "Pennisi", "gaetano@email.it", "password123", dataNascita, "Standard");
         culturalFlow.confermaRegistrazione();
-        culturalFlow.inserisciEventoStandard("Altra Mostra", "Catania", new Date(), 10.0f, 100);
+        culturalFlow.inserisciEventoStandard(org, "Altra Mostra", "Catania", new Date(), 10.0f, 100);
         culturalFlow.selezionaTipologia("Mostra");
         culturalFlow.confermaEvento();
-        culturalFlow.aggiungiInWishlist(culturalFlow.getEventoCorrente().getIdEvento());
+        int id = culturalFlow.getEventi().size();
+        culturalFlow.aggiungiInWishlist(id);
 
-        Organizzatore orgSponsor = new Organizzatore("Pippo", "Pluto", "admin@sponsor.it", "password", "PippoPluto", true);
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_MONTH, 5);
-        culturalFlow.creaPopUp(orgSponsor, "PopUp", "Catania", new Date(), 20.0f, 100, "Mostra", cal.getTime());
+        culturalFlow.creaPopUp(org, "PopUp", "Catania", new Date(), 20.0f, 100, "Mostra", cal.getTime());
         EventoPopUp epu = (EventoPopUp) culturalFlow.getEventoCorrente();
         culturalFlow.inviaInvitiPrioritari();
         
@@ -172,7 +173,8 @@ public class CulturalFlowTest {
     
     @Test
     public void testInserisciEventoStandard(){
-        culturalFlow.inserisciEventoStandard("Concerto di Natale", "Catania", new Date(), 20.0f, 100);
+        Organizzatore org = new Organizzatore("Pippo", "Pluto", "pippo@sponsor.it", "password", "PippoPluto", false);
+        culturalFlow.inserisciEventoStandard(org, "Concerto di Natale", "Catania", new Date(), 20.0f, 100);
         Evento e = culturalFlow.getEventoCorrente();
         
         assertNotNull(e);
@@ -180,7 +182,8 @@ public class CulturalFlowTest {
     
     @Test
     public void testSelezionaTipologia(){
-        culturalFlow.inserisciEventoStandard("Concerto di Natale", "Catania", new Date(), 20.0f, 100);
+        Organizzatore org = new Organizzatore("Pippo", "Pluto", "pippo@sponsor.it", "password", "PippoPluto", false);
+        culturalFlow.inserisciEventoStandard(org, "Concerto di Natale", "Catania", new Date(), 20.0f, 100);
         Evento e = culturalFlow.getEventoCorrente();
         culturalFlow.selezionaTipologia("Concerto");
         
@@ -189,7 +192,8 @@ public class CulturalFlowTest {
     
     @Test
     public void testInserisciServizioDettagli(){
-        culturalFlow.inserisciEventoStandard("Concerto di Natale", "Catania", new Date(), 20.0f, 100);
+        Organizzatore org = new Organizzatore("Pippo", "Pluto", "pippo@sponsor.it", "password", "PippoPluto", false);
+        culturalFlow.inserisciEventoStandard(org, "Concerto di Natale", "Catania", new Date(), 20.0f, 100);
         culturalFlow.inserisciServizioDettagli(true, 5.0f, "Cappelli di Babbo Natale");
         
         Evento e = culturalFlow.getEventoCorrente();
@@ -200,7 +204,8 @@ public class CulturalFlowTest {
     
     @Test
     public void testConfermaEvento(){
-        culturalFlow.inserisciEventoStandard("Concerto di Natale", "Catania", new Date(), 20.0f, 100);
+        Organizzatore org = new Organizzatore("Pippo", "Pluto", "pippo@sponsor.it", "password", "PippoPluto", false);
+        culturalFlow.inserisciEventoStandard(org, "Concerto di Natale", "Catania", new Date(), 20.0f, 100);
         Evento e = culturalFlow.getEventoCorrente();
         culturalFlow.confermaEvento();
         
@@ -210,17 +215,18 @@ public class CulturalFlowTest {
     
     @Test
     public void testCercaEvento(){
-        culturalFlow.inserisciEventoStandard("Concerto di Natale", "Catania", new Date(), 20.0f, 100);
+        Organizzatore org = new Organizzatore("Pippo", "Pluto", "pippo@sponsor.it", "password", "PippoPluto", false);
+        culturalFlow.inserisciEventoStandard(org, "Concerto di Natale", "Catania", new Date(), 20.0f, 100);
         Evento e1 = culturalFlow.getEventoCorrente();
         culturalFlow.selezionaTipologia("Concerto");
         culturalFlow.confermaEvento();
 
-        culturalFlow.inserisciEventoStandard("Mostra di Picasso", "Catania", new Date(), 30.0f, 100);
+        culturalFlow.inserisciEventoStandard(org, "Mostra di Picasso", "Catania", new Date(), 30.0f, 100);
         Evento e2 = culturalFlow.getEventoCorrente();
         culturalFlow.selezionaTipologia("Mostra");
         culturalFlow.confermaEvento();
 
-        culturalFlow.inserisciEventoStandard("Coldplay Tour", "Messina", new Date(), 15.0f, 100);
+        culturalFlow.inserisciEventoStandard(org, "Coldplay Tour", "Messina", new Date(), 15.0f, 100);
         Evento e3 = culturalFlow.getEventoCorrente();
         culturalFlow.selezionaTipologia("Concerto");
         culturalFlow.confermaEvento();
@@ -250,11 +256,12 @@ public class CulturalFlowTest {
     
     @Test
     public void testSelezionaEvento() {
-        culturalFlow.inserisciEventoStandard("Teatro Greco", "Siracusa", new Date(), 25.0f, 100);
+        Organizzatore org = new Organizzatore("Pippo", "Pluto", "pippo@sponsor.it", "password", "PippoPluto", false);
+        culturalFlow.inserisciEventoStandard(org,"Teatro Greco", "Siracusa", new Date(), 25.0f, 100);
         culturalFlow.confermaEvento();
-        int id = culturalFlow.getEventoCorrente().getIdEvento();
+        int idEvento = culturalFlow.getEventi().size();
 
-        culturalFlow.selezionaEvento(id);
+        culturalFlow.selezionaEvento(idEvento);
 
         assertNotNull(culturalFlow.getEventoCorrente());
         assertEquals("Teatro Greco", culturalFlow.getEventoCorrente().getNome());
@@ -263,30 +270,31 @@ public class CulturalFlowTest {
     @Test
     public void testAcquistaBiglietto() throws Exception {
         Calendar cal = Calendar.getInstance();
-        cal.set(1995, Calendar.JANUARY, 1); // Maggiorenne
+        cal.set(1995, Calendar.JANUARY, 1);
         culturalFlow.inserisciDati("Monica", "Russo", "monica@email.it", "password123", cal.getTime(), "Studente");
         culturalFlow.confermaRegistrazione();
+        Organizzatore org = new Organizzatore("Pippo", "Pluto", "pippo@sponsor.it", "password", "PippoPluto", true);
 
-        culturalFlow.inserisciEventoStandard("Teatro Greco", "Siracusa", new Date(), 20.0f, 100);
+        culturalFlow.inserisciEventoStandard(org, "Teatro Greco", "Siracusa", new Date(), 20.0f, 100);
         culturalFlow.selezionaTipologia("Concerto");
         culturalFlow.confermaEvento();
-        int idStandard = culturalFlow.getEventoCorrente().getIdEvento();
+        int idStandard = culturalFlow.getEventi().size();
 
         Calendar calScadenza = Calendar.getInstance();
         calScadenza.add(Calendar.DAY_OF_MONTH, 5); 
         Date scadenzaPriorita = calScadenza.getTime();
         
-        Organizzatore org = new Organizzatore("Sponsor", "S", "a@s.it", "password", "Org", true);
         culturalFlow.creaPopUp(org, "Mostra Quadri", "Catania", new Date(), 10.0f, 100, "Mostra", scadenzaPriorita);
         EventoPopUp ep = (EventoPopUp) culturalFlow.getEventoCorrente();
-        int idPopUp = ep.getIdEvento();
         String codice = ep.getCodiceAccesso();
+        culturalFlow.confermaEvento(); 
+        int idPopUp = culturalFlow.getEventi().size();
         
-        culturalFlow.inserisciEventoStandard("Workshop Coding", "Palermo", new Date(), 40.0f, 50);
+        culturalFlow.inserisciEventoStandard(org, "Workshop Coding", "Palermo", new Date(), 40.0f, 50);
         culturalFlow.selezionaTipologia("laboratorio");
         culturalFlow.inserisciServizioDettagli(false, 0, "livello avanzato");
         culturalFlow.confermaEvento();
-        int idLab = culturalFlow.getEventoCorrente().getIdEvento();
+        int idLab = culturalFlow.getEventi().size();
         
         culturalFlow.selezionaEvento(idStandard);
         culturalFlow.acquistaBiglietto(false, "tribuna", 1, null);
@@ -320,13 +328,14 @@ public class CulturalFlowTest {
         cal.set(1990, Calendar.MAY, 15);
         culturalFlow.inserisciDati("Monica", "Russo", "monica@email.it", "password123", cal.getTime(), "Standard");
         culturalFlow.confermaRegistrazione();
+        Organizzatore org = new Organizzatore("Pippo", "Pluto", "pippo@sponsor.it", "password", "PippoPluto", false);
 
-        culturalFlow.inserisciEventoStandard("Teatro Bellini", "Catania", new Date(), 30.0f, 100);
+        culturalFlow.inserisciEventoStandard(org, "Teatro Bellini", "Catania", new Date(), 30.0f, 100);
         culturalFlow.selezionaTipologia("Conferenza");
         culturalFlow.confermaEvento();
-        int id = culturalFlow.getEventoCorrente().getIdEvento();
+        int idEvento = culturalFlow.getEventi().size();
 
-        culturalFlow.selezionaEvento(id);
+        culturalFlow.selezionaEvento(idEvento);
         culturalFlow.acquistaBiglietto(false, null, 2, null);
 
         assertEquals(2, culturalFlow.getBiglietti().size());
@@ -347,14 +356,14 @@ public class CulturalFlowTest {
         cal.set(1995, Calendar.JANUARY, 1);
         culturalFlow.inserisciDati("Monica", "Russo", "monica@email.it", "password123", cal.getTime(), "Standard");
         culturalFlow.confermaRegistrazione(); 
-
-        culturalFlow.inserisciEventoStandard("Mostra d'Arte", "Catania", new Date(), 15.0f, 100);
+        Organizzatore org = new Organizzatore("Pippo", "Pluto", "pippo@sponsor.it", "password", "PippoPluto", false);
+        
+        culturalFlow.inserisciEventoStandard(org, "Mostra d'Arte", "Catania", new Date(), 15.0f, 100);
         culturalFlow.selezionaTipologia("Mostra");
         culturalFlow.confermaEvento();
-        
-        int id = culturalFlow.getEventoCorrente().getIdEvento();
+        int idEvento = culturalFlow.getEventi().size();
 
-        culturalFlow.aggiungiInWishlist(id);
+        culturalFlow.aggiungiInWishlist(idEvento);
 
         Cliente c = culturalFlow.getClienteCorrente();
         
@@ -369,11 +378,12 @@ public class CulturalFlowTest {
         cal.set(1995, Calendar.JANUARY, 1);
         culturalFlow.inserisciDati("Gaetano", "Pennisi", "gaetano@email.it", "password123", cal.getTime(), "Standard");
         culturalFlow.confermaRegistrazione();
-
-        culturalFlow.inserisciEventoStandard("Concerto Rock", "Catania", new Date(), 20.0f, 100);
+        Organizzatore org = new Organizzatore("Pippo", "Pluto", "pippo@sponsor.it", "password", "PippoPluto", false);
+        
+        culturalFlow.inserisciEventoStandard(org, "Concerto Rock", "Catania", new Date(), 20.0f, 100);
         culturalFlow.selezionaTipologia("Concerto");
         culturalFlow.confermaEvento();
-        int id = culturalFlow.getEventoCorrente().getIdEvento();
+        int id = culturalFlow.getEventi().size();
         
         culturalFlow.aggiungiInWishlist(id);
         assertEquals("La wishlist dovrebbe avere 1 evento", 1, culturalFlow.getClienteCorrente().getWishlist().size());
@@ -390,14 +400,17 @@ public class CulturalFlowTest {
         cal.set(1995, Calendar.JANUARY, 1);
         culturalFlow.inserisciDati("Monica", "Russo", "monica@email.it", "password123", cal.getTime(), "Standard");
         culturalFlow.confermaRegistrazione();
+        Organizzatore org = new Organizzatore("Pippo", "Pluto", "pippo@sponsor.it", "password", "PippoPluto", false);
 
-        culturalFlow.inserisciEventoStandard("Evento A", "Catania", new Date(), 10.0f, 100);
+        culturalFlow.inserisciEventoStandard(org, "Evento A", "Catania", new Date(), 10.0f, 100);
         culturalFlow.confermaEvento();
-        culturalFlow.aggiungiInWishlist(culturalFlow.getEventoCorrente().getIdEvento());
+        int idEvento = culturalFlow.getEventi().size();
+        culturalFlow.aggiungiInWishlist(idEvento);
         
-        culturalFlow.inserisciEventoStandard("Evento B", "Palermo", new Date(), 15.0f, 100);
+        culturalFlow.inserisciEventoStandard(org, "Evento B", "Palermo", new Date(), 15.0f, 100);
         culturalFlow.confermaEvento();
-        culturalFlow.aggiungiInWishlist(culturalFlow.getEventoCorrente().getIdEvento());
+        int idEvento2 = culturalFlow.getEventi().size();
+        culturalFlow.aggiungiInWishlist(idEvento2);
 
         List<Evento> wishlist = culturalFlow.mostraWishlist();
 
@@ -409,9 +422,10 @@ public class CulturalFlowTest {
     
     @Test
     public void testCreaContest() throws Exception {
-        culturalFlow.inserisciEventoStandard("Festival del Cinema", "Catania", new Date(), 15.0f, 50);
+        Organizzatore org = new Organizzatore("Pippo", "Pluto", "pippo@sponsor.it", "password", "PippoPluto", false);
+        culturalFlow.inserisciEventoStandard(org, "Festival del Cinema", "Catania", new Date(), 15.0f, 50);
         culturalFlow.confermaEvento();
-        int idEvento = culturalFlow.getEventoCorrente().getIdEvento();
+        int idEvento = culturalFlow.getEventi().size();
 
         Calendar cal = Calendar.getInstance();
         Date inizio = cal.getTime();
@@ -432,9 +446,11 @@ public class CulturalFlowTest {
     
     @Test
     public void testConfermaContest() throws Exception {
-        culturalFlow.inserisciEventoStandard("Evento", "Palermo", new Date(), 20.0f, 100);
+        Organizzatore org = new Organizzatore("Pippo", "Pluto", "pippo@sponsor.it", "password", "PippoPluto", false);
+        culturalFlow.inserisciEventoStandard(org, "Evento", "Palermo", new Date(), 20.0f, 100);
+        culturalFlow.selezionaTipologia("Mostra");
         culturalFlow.confermaEvento();
-        int idEvento = culturalFlow.getEventoCorrente().getIdEvento();
+        int idEvento = culturalFlow.getEventi().size();
 
         Calendar cal = Calendar.getInstance();
         Date oggi = cal.getTime();
@@ -442,14 +458,16 @@ public class CulturalFlowTest {
         Date estrazione = cal.getTime();
 
         culturalFlow.creaContest("Contest", "Descrizione", "Premio VIP", oggi, estrazione, estrazione, idEvento);
-        
         assertNotNull(culturalFlow.getContestCorrente());
-
         culturalFlow.confermaContest();
-
         assertNull("Il contest corrente deve essere null dopo la conferma", culturalFlow.getContestCorrente());
-        
-        culturalFlow.selezionaContest(1);
+        List<Contest> listacontest = culturalFlow.visualizzaContest();
+        assertFalse("La lista dei contest non deve essere vuota", listacontest.isEmpty());
+
+        Contest c = listacontest.get(listacontest.size() - 1);
+        int id = c.getIdContest();
+
+        culturalFlow.selezionaContest(id);
         assertNotNull("Il contest con ID 1 deve esistere nel sistema", culturalFlow.getContestCorrente());
         assertEquals("Contest", culturalFlow.getContestCorrente().getNome());
     }
@@ -460,42 +478,47 @@ public class CulturalFlowTest {
         cal.set(1990, Calendar.MAY, 15);
         culturalFlow.inserisciDati("Monica", "Russo", "monica@email.it", "password123", cal.getTime(), "Standard");
         culturalFlow.confermaRegistrazione();
+        Organizzatore org = new Organizzatore("Pippo", "Pluto", "pippo@sponsor.it", "password", "PippoPluto", false);
 
         Calendar calFuturo = Calendar.getInstance();
         calFuturo.add(Calendar.DAY_OF_MONTH, 10);
-        culturalFlow.inserisciEventoStandard("Mostra 1", "Messina", calFuturo.getTime(), 20.0f, 100);
+        culturalFlow.inserisciEventoStandard(org, "Mostra 1", "Messina", calFuturo.getTime(), 20.0f, 100);
+        culturalFlow.selezionaTipologia("Mostra");
         culturalFlow.confermaEvento();
-        int idEvFuturo = culturalFlow.getEventoCorrente().getIdEvento();
+        int idEvFuturo = culturalFlow.getEventi().size();
 
         Calendar calPassato = Calendar.getInstance();
         calPassato.add(Calendar.DAY_OF_MONTH, 2);
-        culturalFlow.inserisciEventoStandard("Mostra 2", "Catania", calPassato.getTime(), 10.0f, 50);
+        culturalFlow.inserisciEventoStandard(org, "Mostra 2", "Catania", calPassato.getTime(), 10.0f, 50);
+        culturalFlow.selezionaTipologia("Mostra");
         culturalFlow.confermaEvento();
-        int idEvPassato = culturalFlow.getEventoCorrente().getIdEvento();
+        int idEvPassato = culturalFlow.getEventi().size();
+
+        culturalFlow.selezionaEvento(idEvPassato); 
+        culturalFlow.acquistaBiglietto(false, "nessuno", 1, null);
+        culturalFlow.confermaAcquisto();
+        
+        List<Biglietto> biglietti = culturalFlow.getClienteCorrente().getBiglietti();
+        int idBigliettoScaduto = biglietti.get(biglietti.size() - 1).getIdBiglietto();
 
         culturalFlow.selezionaEvento(idEvFuturo);
-        culturalFlow.acquistaBiglietto(false, null, 1, null);
+        culturalFlow.acquistaBiglietto(false, "nessuno", 1, null);
         culturalFlow.confermaAcquisto();
-        int idBigliettoValido = culturalFlow.getClienteCorrente().getBiglietti().get(0).getIdBiglietto();
+        biglietti = culturalFlow.getClienteCorrente().getBiglietti();
+        int idBigliettoValido = biglietti.get(biglietti.size() - 1).getIdBiglietto();
 
-        culturalFlow.selezionaEvento(idEvPassato);
-        culturalFlow.acquistaBiglietto(false, null, 1, null);
-        culturalFlow.confermaAcquisto();
-        int idBigliettoScaduto = culturalFlow.getClienteCorrente().getBiglietti().get(1).getIdBiglietto();
-
-        assertThrows("Dovrebbe fallire perché mancano meno di 7 giorni all'evento", Exception.class, () -> {
+        assertThrows(Exception.class, () -> {
             culturalFlow.richiestaRimborso(idBigliettoScaduto);
         });
         assertNull("rimborsoCorrente deve essere null dopo un fallimento", culturalFlow.getRimborsoCorrente());
-
-        int dispPrima = culturalFlow.selezionaEvento(idEvFuturo).getDisponibilita();
+        culturalFlow.selezionaEvento(idEvFuturo); 
+        int dispPrima = culturalFlow.getEventi().get(idEvFuturo).getDisponibilita();
         culturalFlow.richiestaRimborso(idBigliettoValido);
-        
-        assertNotNull("rimborsoCorrente deve essere popolato", culturalFlow.getRimborsoCorrente());
-        assertEquals("La disponibilità deve aumentare subito", dispPrima + 1, culturalFlow.selezionaEvento(idEvFuturo).getDisponibilita());
 
+        assertNotNull("rimborsoCorrente deve essere popolato", culturalFlow.getRimborsoCorrente());
+        assertEquals("La disponibilità deve aumentare subito", dispPrima + 1, culturalFlow.getEventi().get(idEvFuturo).getDisponibilita());
         culturalFlow.confermaRimborso();
-        
+
         assertNull("rimborsoCorrente deve tornare null", culturalFlow.getRimborsoCorrente());
         assertEquals("Il cliente deve avere il rimborso registrato", 1, culturalFlow.getClienteCorrente().getRimborsi().size());
     }
@@ -506,14 +529,16 @@ public class CulturalFlowTest {
         cal.set(1990, Calendar.MAY, 15);
         culturalFlow.inserisciDati("Monica", "Russo", "monica@email.it", "password123", cal.getTime(), "Standard");
         culturalFlow.confermaRegistrazione();
+        Organizzatore org = new Organizzatore("Pippo", "Pluto", "pippo@sponsor.it", "password", "PippoPluto", false);
 
         Calendar calFuturo = Calendar.getInstance();
-        calFuturo.add(Calendar.DAY_OF_MONTH, 10); // 10 giorni > 7, rimborsabile
-        culturalFlow.inserisciEventoStandard("Mostra 1", "Messina", calFuturo.getTime(), 20.0f, 100);
+        calFuturo.add(Calendar.DAY_OF_MONTH, 10);
+        culturalFlow.inserisciEventoStandard(org, "Mostra 1", "Messina", calFuturo.getTime(), 20.0f, 100);
+        culturalFlow.selezionaTipologia("Mostra");
         culturalFlow.confermaEvento();
-        int idEv = culturalFlow.getEventoCorrente().getIdEvento();
+        int idEvento = culturalFlow.getEventi().size();
 
-        culturalFlow.selezionaEvento(idEv);
+        culturalFlow.selezionaEvento(idEvento);
         culturalFlow.acquistaBiglietto(false, null, 1, null);
         culturalFlow.confermaAcquisto();
         
@@ -522,13 +547,9 @@ public class CulturalFlowTest {
         culturalFlow.richiestaRimborso(idBiglietto);
         
         assertNotNull("Il rimborso deve essere pronto per la conferma", culturalFlow.getRimborsoCorrente());
-
         culturalFlow.confermaRimborso();
-
         assertNull("Il controller deve resettare il rimborso corrente", culturalFlow.getRimborsoCorrente());
-        
         assertEquals("Il cliente deve avere 1 rimborso confermato", 1, culturalFlow.getClienteCorrente().getRimborsi().size());
-        
         float importoRimborso = culturalFlow.getClienteCorrente().getRimborsi().get(0).getImporto();
         assertEquals("L'importo rimborsato deve coincidere con il prezzo del biglietto", 20.0f, importoRimborso, 0.001);
     }
@@ -631,14 +652,20 @@ public class CulturalFlowTest {
     
     @Test
     public void testVisualizzaContest() throws Exception {
-        culturalFlow.inserisciEventoStandard("Evento A", "Catania", new Date(), 10.0f, 100);
+        Organizzatore org = new Organizzatore("Pippo", "Pluto", "pippo@sponsor.it", "password", "PippoPluto", false);
+        
+        culturalFlow.inserisciEventoStandard(org, "Evento A", "Catania", new Date(), 10.0f, 100);
+        culturalFlow.selezionaTipologia("Mostra");
         culturalFlow.confermaEvento();
-        culturalFlow.creaContest("Contest A", "Desc A", "Premio A", new Date(), new Date(), new Date(), culturalFlow.getEventoCorrente().getIdEvento());
+        int idA = culturalFlow.getEventi().size();
+        culturalFlow.creaContest("Contest A", "Desc A", "Premio A", new Date(), new Date(), new Date(), idA);
         culturalFlow.confermaContest();
 
-        culturalFlow.inserisciEventoStandard("Evento B", "Palermo", new Date(), 15.0f, 50);
+        culturalFlow.inserisciEventoStandard(org, "Evento B", "Palermo", new Date(), 15.0f, 50);
+        culturalFlow.selezionaTipologia("Concerto");
         culturalFlow.confermaEvento();
-        culturalFlow.creaContest("Contest B", "Desc B", "Premio B", new Date(), new Date(), new Date(), culturalFlow.getEventoCorrente().getIdEvento());
+        int idB = culturalFlow.getEventi().size();
+        culturalFlow.creaContest("Contest B", "Desc B", "Premio B", new Date(), new Date(), new Date(), idB);
         culturalFlow.confermaContest();
 
         List<Contest> lista = culturalFlow.visualizzaContest();
@@ -650,9 +677,12 @@ public class CulturalFlowTest {
     
     @Test
     public void testSelezionaContest() throws Exception {
-        culturalFlow.inserisciEventoStandard("Festival", "Siracusa", new Date(), 20.0f, 100);
+        Organizzatore org = new Organizzatore("Pippo", "Pluto", "pippo@sponsor.it", "password", "PippoPluto", false);
+        culturalFlow.inserisciEventoStandard(org, "Festival", "Siracusa", new Date(), 20.0f, 100);
+        culturalFlow.selezionaTipologia("Mostra");
         culturalFlow.confermaEvento();
-        culturalFlow.creaContest("Contest", "Desc", "Pass", new Date(), new Date(), new Date(), culturalFlow.getEventoCorrente().getIdEvento());
+        int idEvento = culturalFlow.getEventi().size();
+        culturalFlow.creaContest("Contest", "Desc", "Pass", new Date(), new Date(), new Date(),idEvento);
         culturalFlow.confermaContest();
 
         List<Contest> lista = culturalFlow.visualizzaContest();
@@ -671,24 +701,26 @@ public class CulturalFlowTest {
         culturalFlow.inserisciDati("Gaetano", "Pennisi", "gaetano@email.it", "password123", cal.getTime(), "Standard");
         culturalFlow.confermaRegistrazione();
         Cliente c = culturalFlow.getClienteCorrente();
+        Organizzatore org = new Organizzatore("Pippo", "Pluto", "pippo@sponsor.it", "password", "PippoPluto", false);
 
-        culturalFlow.inserisciEventoStandard("Festival", "Catania", new Date(), 20.0f, 100);
+        culturalFlow.inserisciEventoStandard(org, "Festival", "Catania", new Date(), 20.0f, 100);
+        culturalFlow.selezionaTipologia("Concerto");
         culturalFlow.confermaEvento();
-        int idEv = culturalFlow.getEventoCorrente().getIdEvento();
+        int idEvento = culturalFlow.getEventi().size();
     
-        culturalFlow.creaContest("Vinci il Backstage", "Partecipa!", "Pass VIP", new Date(), new Date(), new Date(), idEv);
+        culturalFlow.creaContest("Vinci il Backstage", "Partecipa!", "Pass VIP", new Date(), new Date(), new Date(), idEvento);
         culturalFlow.confermaContest();
         int idContest = culturalFlow.visualizzaContest().get(0).getIdContest();
 
         assertEquals("Il cliente non deve avere partecipazioni iniziali", 0, c.contaPartecipazioniAperte());
 
-        culturalFlow.selezionaEvento(idEv);
+        culturalFlow.selezionaEvento(idEvento);
         culturalFlow.acquistaBiglietto(false, null, 1, null);
         culturalFlow.confermaAcquisto();
 
         boolean trovato = false;
         for (Biglietto b : c.getBiglietti()) {
-            if (b.getEvento().getIdEvento() == idEv) { trovato = true; break; }
+            if (b.getEvento().getIdEvento() == idEvento) { trovato = true; break; }
         }
         assertTrue("Il cliente deve avere il biglietto per l'evento del contest", trovato);
 
@@ -704,11 +736,13 @@ public class CulturalFlowTest {
     
     @Test
     public void testEstraiVincitore() throws Exception {
+        Organizzatore org = new Organizzatore("Pippo", "Pluto", "pippo@sponsor.it", "password", "PippoPluto", false);
         Calendar calNascita = Calendar.getInstance();
         calNascita.set(1990, Calendar.JANUARY, 1);
-        culturalFlow.inserisciEventoStandard("Concerto", "Catania", new Date(), 50.0f, 100);
+        culturalFlow.inserisciEventoStandard(org, "Concerto", "Catania", new Date(), 50.0f, 100);
+        culturalFlow.selezionaTipologia("Concerto");
         culturalFlow.confermaEvento();
-        int idEv = culturalFlow.getEventoCorrente().getIdEvento();
+        int idEv = culturalFlow.getEventi().size();
 
         Calendar calEstrazione = Calendar.getInstance();
         calEstrazione.add(Calendar.MINUTE, -10);

@@ -151,16 +151,6 @@ public class CulturalFlow {
         eventoBuilder.buildDettagli(dettagli);
     }
     
-    /*public void confermaEvento() {
-        int id = elencoEventi.size() + 1; 
-        eventoBuilder.buildIdEvento(id);
-        Evento e = eventoBuilder.getEvento();
-        if (e.getOrganizzatore() == null && this.organizzatoreLoggato != null) {
-            e.setOrganizzatore(this.organizzatoreLoggato);
-        }
-        elencoEventi.put(id, e);
-    }*/
-    
     public void confermaEvento() {
         if (this.eventoCorrente == null) return;
 
@@ -179,55 +169,13 @@ public class CulturalFlow {
 
         this.eventoCorrente = null;
     }
-    /*
-    public void inviaInvitiPrioritari() {
-        if (eventoCorrente instanceof EventoPopUp) {
-            EventoPopUp epu = (EventoPopUp) eventoCorrente;
-            String codice = epu.getCodiceAccesso();
-            int invitiInviati = 0;
 
-            for (Cliente c : elencoClienti.values()) {
-                if (c.haInteresseElevato(epu.getTarget())) { 
-                    System.out.println("Invio codice prioritario " + codice + " a " + c.getEmail());
-                    invitiInviati++;
-                }
-            }
-            if (invitiInviati == 0){
-                elencoEventi.remove(epu);
-            }
-        }
-    }*/
-    
-    /*public void inviaInvitiPrioritari() {
-        if (eventoCorrente instanceof EventoPopUp) {
-            EventoPopUp epu = (EventoPopUp) eventoCorrente;
-            String codice = epu.getCodiceAccesso();
-            int invitiInviati = 0;
-
-            String messaggio = "Codice prioritario per " + epu.getNome() + ": " + codice;
-            String dataOggi = new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date());
-
-            for (Cliente c : elencoClienti.values()) {
-                if (c.haInteresseElevato(epu.getTarget())) { 
-                    c.aggiungiInvito(messaggio, dataOggi); 
-                    System.out.println("Invio codice prioritario " + codice + " a " + c.getEmail());
-                    invitiInviati++;
-                }
-            }
-
-            if (invitiInviati == 0){
-                elencoEventi.remove(epu.getIdEvento());
-            }
-        }
-    }*/
-    
     public void inviaInvitiPrioritari() {
         if (eventoCorrente instanceof EventoPopUp) {
             EventoPopUp epu = (EventoPopUp) eventoCorrente;
             String nomeEv = epu.getNome();
             String codice = epu.getCodiceAccesso();
             int invitiInviati = 0;
-            //String dataOggi = new java.text.SimpleDateFormat("dd/MM/yyyy").format(new java.util.Date());
             Date dataOggi = new Date();
             
             for (Cliente c : elencoClienti.values()) {

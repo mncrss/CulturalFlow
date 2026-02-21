@@ -58,7 +58,11 @@ public class ClienteTest {
     
     @Test
     public void testAddRimborso() {
-        Rimborso r = new Rimborso(15.0f);
+        Evento ev = new EventoStandard();
+        ev.setNome("Evento Test");
+        ev.setPrezzoBase(20.0f);
+        Biglietto b = new Biglietto(ev, false, "nessuno", null);
+        Rimborso r = new Rimborso(20.0f, b);
         cliente.addRimborso(r);
         assertEquals(1, cliente.getRimborsi().size());
     }

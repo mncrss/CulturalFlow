@@ -1,6 +1,7 @@
-STANDARD;1;gaetano@email.com;Evento1;Catania;15/05/2026;20.0;99;Mostra;true;3.0;null
-STANDARD;2;pippo@email.com;Evento3;Catania;24/06/2026;40.0;200;Concerto;false;0.0;null
-STANDARD;3;gaetano@email.com;Evento2;Acireale;16/03/2026;10.0;100;Concerto;false;0.0;null
-STANDARD;4;pippo@email.com;Evento4;Messin;28/09/2026;50.0;100;Concerto;false;0.0;null
-POPUP;5;pippo@email.com;Eveno5;Catania;28/02/2026;10.0;200;Concerto;Concerto;POP-6206;21/02/2026
-POPUP;6;pippo@email.com;Evento6;Acireale;16/04/2026;12.0;50;Mostra;Mostra;POP-3717;10/04/2026
+STANDARD;1;gaetano@email.com;Concerto di Natale;Catania;22/12/2026;50.0;50;Concerto;true;0.0;Cappellini di Natale gratuiti
+STANDARD;2;pippo@email.com;Mostra d'Arte Contemporanea;Acireale;25/05/2026;15.0;40;Mostra;true;5.0;Audioguida
+STANDARD;3;pippo@email.com;Mostra di Picasso;Messina;04/09/2026;30.0;97;Mostra;false;0.0;null
+STANDARD;4;gaetano@email.com;Van Gogh Experience;Catania;03/03/2027;30.0;20;Mostra;false;0.0;null
+STANDARD;5;gaetano@email.com;Concertone;Palermo;01/05/2026;15.0;399;Concerto;true;3.0;Cappellini Firmati Concertone
+POPUP;6;pippo@email.com;PopUp dell'Arte;Catania;30/06/2026;10.0;99;Mostra;Mostra;POP-1013;30/04/2026
+POPUP;7;pippo@email.com;Poppissimo;Messina;12/09/2026;15.0;50;Concerto;Concerto;POP-6174;12/08/2026
