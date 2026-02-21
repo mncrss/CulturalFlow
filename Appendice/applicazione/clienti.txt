@@ -1,0 +1,2 @@
+cliente;cliente;cliente@email.com;password;05/08/2000;Standard
+Monica;Russo;monica@email.com;password;19/03/2003;Studente

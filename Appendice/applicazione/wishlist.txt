@@ -1,0 +1,4 @@
+cliente@email.com;1
+monica@email.com;4
+monica@email.com;3
+monica@email.com;2
